@@ -1,0 +1,23 @@
+<idea-plugin>
+    <id>com.mohamedbamoh.markmap</id>
+    <name>Markmap Preview</name>
+    <version>1.0.0</version>
+    <vendor email="you@example.com">Your Name</vendor>
+
+    <description><![CDATA[
+        Adds Markmap mind map preview tab for Markdown files.<br>
+        Features:
+        <ul>
+            <li>Side-by-side view with the default Markdown editor</li>
+            <li>Real-time preview updates</li>
+            <li>Mind map visualization of your Markdown documents</li>
+        </ul>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.intellij.plugins.markdown</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileEditorProvider implementation="com.mohamedbamoh.markmap.editor.MarkmapPreviewProvider"/>
+    </extensions>
+</idea-plugin>
