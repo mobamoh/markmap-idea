@@ -1,3 +1,4 @@
+
 package com.mohamedbamoh.markmap.editor
 
 import com.intellij.icons.AllIcons
@@ -42,17 +43,19 @@ class MarkmapCompositeEditor(
     }
 
     /**
-     * Sync text editor changes with preview component directly
+     * Sync text editor changes with preview component - NO DEBOUNCING
      */
     private fun setupContentSync() {
         ApplicationManager.getApplication().invokeLater({
             val document = textEditor.editor.document
 
-            // Listen for document changes
+            // Listen for document changes - IMMEDIATE UPDATES like playground
             document.addDocumentListener(object : DocumentListener {
                 override fun documentChanged(event: DocumentEvent) {
-                    val content = document.text
-                    previewComponent.updateContent(content)
+                    ApplicationManager.getApplication().invokeLater({
+                        val content = document.text
+                        previewComponent.updateContent(content)
+                    }, ModalityState.nonModal())
                 }
             })
 

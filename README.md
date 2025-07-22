@@ -39,8 +39,8 @@ Note: There is no need to uninstall the default markdown plugin. The Markmap edi
 
 ### Example
 Create a markdown file with hierarchical content and watch it transform into an interactive mind map:
-# My Project
-
+![light.png](light.png)
+![dark.png](dark.png)
 ~~~markdown
 ---
 title: markmap

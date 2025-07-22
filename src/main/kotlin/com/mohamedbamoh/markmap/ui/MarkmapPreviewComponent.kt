@@ -10,6 +10,7 @@ import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.handler.CefLoadHandlerAdapter
 import javax.swing.JComponent
+import java.util.Base64
 
 class MarkmapPreviewComponent {
     private val browser: JBCefBrowser = JBCefBrowser()
@@ -82,19 +83,16 @@ class MarkmapPreviewComponent {
     }
 
     private fun updateContentInternal(content: String) {
-        val escapedContent = content
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
-            .replace("`", "\\`")
-            .replace("$", "\\$")
+        // Use Base64 encoding to avoid all escaping issues with math formulas
+        val contentBytes = content.toByteArray(Charsets.UTF_8)
+        val base64Content = Base64.getEncoder().encodeToString(contentBytes)
 
         val script = """
             try {
                 if (typeof updateMarkmap === 'function') {
-                    updateMarkmap("$escapedContent");
+                    // Decode Base64 back to original content
+                    const decodedContent = atob('$base64Content');
+                    updateMarkmap(decodedContent);
                 }
             } catch (error) {
                 console.error('Error updating content:', error);

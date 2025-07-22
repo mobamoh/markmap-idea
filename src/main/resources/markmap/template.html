@@ -34,6 +34,9 @@
             color: #000000 !important;
         }
     </style>
+    <!-- Preload KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
 </head>
 <body>
 <div class="markmap-container">
@@ -49,6 +52,8 @@
     let markmapInstance = null;
     let transformer = null;
     let isReady = false;
+    let isFirstRender = true;
+    let previousCollapsedState = new Map(); // Track collapsed nodes
 
     function initializeMarkmap() {
         const svg = document.getElementById('markmap-svg');
@@ -57,9 +62,9 @@
         try {
             transformer = new markmap.Transformer();
             markmapInstance = markmap.Markmap.create(svg, {
-                colorFreezeLevel: 6,
+                colorFreezeLevel: 3,
                 maxWidth: 300,
-                initialExpandLevel: -1,
+                initialExpandLevel: -1,  // Everything expanded
                 duration: 300,
                 zoom: true,
                 pan: true,
@@ -69,6 +74,41 @@
         } catch (error) {
             console.error('Markmap initialization error:', error);
         }
+    }
+
+    // Save the current collapsed state
+    function saveCollapsedState() {
+        if (!markmapInstance) return;
+
+        const svg = d3.select('#markmap-svg');
+        const nodes = svg.selectAll('.markmap-node');
+
+        previousCollapsedState.clear();
+        nodes.each(function(d) {
+            if (d.data && d.data.content) {
+                previousCollapsedState.set(d.data.content, d.data.folded || false);
+            }
+        });
+    }
+
+    // Restore the collapsed state after update
+    function restoreCollapsedState() {
+        if (!markmapInstance || previousCollapsedState.size === 0) return;
+
+        setTimeout(() => {
+            const svg = d3.select('#markmap-svg');
+            const nodes = svg.selectAll('.markmap-node');
+
+            nodes.each(function(d) {
+                if (d.data && d.data.content && previousCollapsedState.has(d.data.content)) {
+                    const wasFolded = previousCollapsedState.get(d.data.content);
+                    if (wasFolded && !d.data.folded) {
+                        // Node was folded before, fold it again
+                        markmapInstance.toggleNode(d.data);
+                    }
+                }
+            });
+        }, 50); // Small delay to let the DOM update
     }
 
     function checkAndInit() {
@@ -84,28 +124,86 @@
         if (!isReady || !markmapInstance || !transformer) return;
 
         try {
-            // If no content, show empty SVG
+            // If no content, clear
             if (!content || !content.trim()) {
                 const svg = d3.select('#markmap-svg');
                 svg.selectAll('*').remove();
+                isFirstRender = true;
+                previousCollapsedState.clear();
                 return;
             }
 
+            // Save collapsed state before update (except on first render)
+            if (!isFirstRender) {
+                saveCollapsedState();
+            }
+
+            // Transform content
             const { root } = transformer.transform(content);
 
-            // Force all nodes to be expanded
-            function expandAllNodes(node) {
-                if (node.children && node.children.length > 0) {
-                    node.state = { ...node.state, expanded: true };
-                    node.children.forEach(expandAllNodes);
-                }
-            }
-            expandAllNodes(root);
-
+            // Set the data
             markmapInstance.setData(root);
-            markmapInstance.fit();
+
+            // Handle first render vs updates differently
+            if (isFirstRender) {
+                // First render: fit and wait for KaTeX
+                setTimeout(() => {
+                    markmapInstance.fit();
+                    isFirstRender = false;
+
+                    // Give KaTeX time to render, then fit again
+                    setTimeout(() => {
+                        markmapInstance.fit();
+                    }, 200);
+                }, 100);
+            } else {
+                // Subsequent updates: restore collapsed state
+                restoreCollapsedState();
+            }
+
         } catch (error) {
             console.error('Content update error:', error);
+        }
+    };
+
+    // Update theme colors
+    window.updateTheme = function(backgroundColor, textColor) {
+        const body = document.body;
+        const style = document.querySelector('style');
+
+        body.style.backgroundColor = backgroundColor;
+        body.style.color = textColor;
+
+        // Update styles
+        const newStyles = `
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background: ${backgroundColor};
+                    color: ${textColor};
+                    font-family: system-ui, -apple-system, sans-serif;
+                }
+                .markmap-container {
+                    width: 100%;
+                    height: 100vh;
+                    position: relative;
+                    overflow: hidden;
+                }
+                #markmap-svg {
+                    width: 100%;
+                    height: 100vh;
+                    display: block;
+                }
+                .markmap-svg text {
+                    fill: ${textColor} !important;
+                }
+                .markmap-svg .markmap-foreign {
+                    color: ${textColor} !important;
+                }
+            `;
+
+        if (style) {
+            style.textContent = newStyles;
         }
     };
 
