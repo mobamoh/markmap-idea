@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.intellij.plugins.markdown.lang.MarkdownFileType
 
 /**
- * Async provider that creates both text editor and markmap preview in split mode
+ * Main provider for Markmap composite editor
  */
 class MarkmapEditorProvider : AsyncFileEditorProvider, DumbAware {
 
@@ -16,14 +16,8 @@ class MarkmapEditorProvider : AsyncFileEditorProvider, DumbAware {
         file.fileType is MarkdownFileType
 
     override fun createEditor(project: Project, file: VirtualFile): FileEditor {
-        // Create text editor
-        val textEditor = TextEditorProvider.getInstance().createEditor(project, file) as TextEditor
-
-        // Create preview editor
-        val previewEditor = MarkmapPreviewEditor(project, file)
-
-        // Return a composite editor that supports switching between modes
-        return MarkmapCompositeEditor(textEditor, previewEditor)
+        val textEditor = TextEditorProvider.getInstance().createEditor(project, file)
+        return MarkmapCompositeEditor(textEditor as TextEditor)
     }
 
     override fun createEditorAsync(project: Project, file: VirtualFile): AsyncFileEditorProvider.Builder {
@@ -33,7 +27,6 @@ class MarkmapEditorProvider : AsyncFileEditorProvider, DumbAware {
     }
 
     override fun getEditorTypeId(): String = "markmap-composite-editor"
-
     override fun getPolicy(): FileEditorPolicy = FileEditorPolicy.HIDE_DEFAULT_EDITOR
 
     override fun disposeEditor(editor: FileEditor) {

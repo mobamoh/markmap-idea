@@ -2,11 +2,16 @@ package com.mohamedbamoh.markmap.editor
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.editor.event.DocumentEvent
+import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.*
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.JBSplitter
+import com.mohamedbamoh.markmap.ui.MarkmapPreviewComponent
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 import java.awt.BorderLayout
@@ -14,14 +19,14 @@ import java.beans.PropertyChangeListener
 import javax.swing.*
 
 /**
- * Composite editor that provides three viewing modes like the default markdown editor
+ * Composite editor that combines text editor with markmap preview
  */
 class MarkmapCompositeEditor(
-    private val textEditor: TextEditor,
-    private val previewEditor: MarkmapPreviewEditor
+    private val textEditor: TextEditor
 ) : UserDataHolderBase(), FileEditor {
 
     private val mainPanel: JPanel = JPanel(BorderLayout())
+    private val previewComponent = MarkmapPreviewComponent()
     private var currentMode = ViewMode.SPLIT
     private var splitter: JBSplitter? = null
 
@@ -32,16 +37,37 @@ class MarkmapCompositeEditor(
     }
 
     init {
+        setupContentSync()
         updateLayout()
+    }
+
+    /**
+     * Sync text editor changes with preview component directly
+     */
+    private fun setupContentSync() {
+        ApplicationManager.getApplication().invokeLater({
+            val document = textEditor.editor.document
+
+            // Listen for document changes
+            document.addDocumentListener(object : DocumentListener {
+                override fun documentChanged(event: DocumentEvent) {
+                    val content = document.text
+                    previewComponent.updateContent(content)
+                }
+            })
+
+            // Initial sync
+            val initialContent = document.text
+            previewComponent.updateContent(initialContent)
+
+        }, ModalityState.nonModal())
     }
 
     private fun createToolbar(): JComponent {
         val actionGroup = DefaultActionGroup()
 
-        // Editor only action
         actionGroup.add(object : ToggleAction("Show Editor Only", "Show editor only", AllIcons.General.LayoutEditorOnly), DumbAware {
             override fun isSelected(e: AnActionEvent): Boolean = currentMode == ViewMode.EDITOR_ONLY
-
             override fun setSelected(e: AnActionEvent, state: Boolean) {
                 if (state) {
                     currentMode = ViewMode.EDITOR_ONLY
@@ -50,10 +76,8 @@ class MarkmapCompositeEditor(
             }
         })
 
-        // Split action
         actionGroup.add(object : ToggleAction("Show Editor and Preview", "Show editor and preview", AllIcons.General.LayoutEditorPreview), DumbAware {
             override fun isSelected(e: AnActionEvent): Boolean = currentMode == ViewMode.SPLIT
-
             override fun setSelected(e: AnActionEvent, state: Boolean) {
                 if (state) {
                     currentMode = ViewMode.SPLIT
@@ -62,10 +86,8 @@ class MarkmapCompositeEditor(
             }
         })
 
-        // Preview only action
         actionGroup.add(object : ToggleAction("Show Preview Only", "Show preview only", AllIcons.General.LayoutPreviewOnly), DumbAware {
             override fun isSelected(e: AnActionEvent): Boolean = currentMode == ViewMode.PREVIEW_ONLY
-
             override fun setSelected(e: AnActionEvent, state: Boolean) {
                 if (state) {
                     currentMode = ViewMode.PREVIEW_ONLY
@@ -74,18 +96,10 @@ class MarkmapCompositeEditor(
             }
         })
 
-        val toolbar = ActionManager.getInstance().createActionToolbar(
-            "MarkmapEditor", actionGroup, true
-        )
-
-        // Fix the warning by setting target component
+        val toolbar = ActionManager.getInstance().createActionToolbar("MarkmapEditor", actionGroup, true)
         toolbar.targetComponent = mainPanel
-
-        // Position toolbar on the right like default markdown editor
-        val toolbarComponent = toolbar.component
-        toolbarComponent.isOpaque = false
-
-        return toolbarComponent
+        toolbar.component.isOpaque = false
+        return toolbar.component
     }
 
     private fun updateLayout() {
@@ -93,7 +107,6 @@ class MarkmapCompositeEditor(
 
         when (currentMode) {
             ViewMode.EDITOR_ONLY -> {
-                // Create wrapper with toolbar in top-right corner
                 val editorPanel = JPanel(BorderLayout())
                 editorPanel.add(textEditor.component, BorderLayout.CENTER)
 
@@ -105,9 +118,8 @@ class MarkmapCompositeEditor(
                 mainPanel.add(editorPanel, BorderLayout.CENTER)
             }
             ViewMode.PREVIEW_ONLY -> {
-                // Create wrapper with toolbar in top-right corner
                 val previewPanel = JPanel(BorderLayout())
-                previewPanel.add(previewEditor.component, BorderLayout.CENTER)
+                previewPanel.add(previewComponent.getComponent(), BorderLayout.CENTER)
 
                 val topPanel = JPanel(BorderLayout())
                 topPanel.add(createToolbar(), BorderLayout.EAST)
@@ -117,14 +129,12 @@ class MarkmapCompositeEditor(
                 mainPanel.add(previewPanel, BorderLayout.CENTER)
             }
             ViewMode.SPLIT -> {
-                // Create splitter
                 splitter = JBSplitter(false, 0.5f).apply {
                     firstComponent = textEditor.component
-                    secondComponent = previewEditor.component
+                    secondComponent = previewComponent.getComponent()
                     setDividerWidth(1)
                 }
 
-                // Add toolbar in top-right corner
                 val topPanel = JPanel(BorderLayout())
                 topPanel.add(createToolbar(), BorderLayout.EAST)
                 topPanel.isOpaque = false
@@ -144,7 +154,7 @@ class MarkmapCompositeEditor(
     @Nullable
     override fun getPreferredFocusedComponent(): JComponent? = when (currentMode) {
         ViewMode.EDITOR_ONLY, ViewMode.SPLIT -> textEditor.preferredFocusedComponent
-        ViewMode.PREVIEW_ONLY -> previewEditor.preferredFocusedComponent
+        ViewMode.PREVIEW_ONLY -> previewComponent.getComponent()
     }
 
     @NotNull
@@ -160,24 +170,18 @@ class MarkmapCompositeEditor(
 
     @NotNull
     override fun getState(level: FileEditorStateLevel): FileEditorState {
-        return MarkmapCompositeEditorState(
-            currentMode,
-            textEditor.getState(level)
-        )
+        return MarkmapCompositeEditorState(currentMode, textEditor.getState(level))
     }
 
     override fun isModified(): Boolean = textEditor.isModified
-
-    override fun isValid(): Boolean = textEditor.isValid && previewEditor.isValid
+    override fun isValid(): Boolean = textEditor.isValid
 
     override fun addPropertyChangeListener(listener: PropertyChangeListener) {
         textEditor.addPropertyChangeListener(listener)
-        previewEditor.addPropertyChangeListener(listener)
     }
 
     override fun removePropertyChangeListener(listener: PropertyChangeListener) {
         textEditor.removePropertyChangeListener(listener)
-        previewEditor.removePropertyChangeListener(listener)
     }
 
     @Nullable
@@ -187,12 +191,9 @@ class MarkmapCompositeEditor(
     override fun getFile(): VirtualFile = textEditor.file
 
     override fun dispose() {
+        previewComponent.dispose()
         textEditor.dispose()
-        previewEditor.dispose()
     }
-
-    fun getTextEditor(): TextEditor = textEditor
-    fun getPreviewEditor(): MarkmapPreviewEditor = previewEditor
 }
 
 data class MarkmapCompositeEditorState(
