@@ -6,7 +6,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.intellij.plugins.markdown.lang.MarkdownFileType
 
+/**
+ * Provider for Markmap preview editor - shows as additional tab alongside default markdown editor
+ */
 class MarkmapPreviewProvider : FileEditorProvider, DumbAware {
+
     override fun accept(project: Project, file: VirtualFile): Boolean =
         file.fileType is MarkdownFileType
 

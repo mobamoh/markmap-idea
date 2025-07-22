@@ -1,23 +1,46 @@
+
 <idea-plugin>
     <id>com.mohamedbamoh.markmap</id>
     <name>Markmap Preview</name>
     <version>1.0.0</version>
-    <vendor email="you@example.com">Your Name</vendor>
+    <vendor email="mobamoh.it@gmail.com" url="https://github.com/mobamoh/markmap-jetbrains">Mohamed Bamoh</vendor>
 
     <description><![CDATA[
-        Adds Markmap mind map preview tab for Markdown files.<br>
-        Features:
+        <p>Adds interactive mind map preview for Markdown files using Markmap.</p>
+
+        <h3>Features:</h3>
         <ul>
-            <li>Side-by-side view with the default Markdown editor</li>
-            <li>Real-time preview updates</li>
-            <li>Mind map visualization of your Markdown documents</li>
+            <li>🧠 Interactive mind map visualization of Markdown documents</li>
+            <li>🎨 Follows your IDE's theme (light/dark mode) with automatic updates</li>
+            <li>⚡ Real-time preview updates as you type</li>
+            <li>🔍 Zoom and pan support</li>
+            <li>📱 Three-view modes: Editor, Split, Preview with toolbar buttons</li>
         </ul>
+
+        <h3>Usage:</h3>
+        <p>Open any Markdown file and use the toolbar buttons to switch between Editor, Split, and Preview modes.
+        Your markdown structure will be rendered as an interactive mind map!</p>
     ]]></description>
+
+    <change-notes><![CDATA[
+        <h3>Version 1.0.0</h3>
+        <ul>
+            <li>Initial release</li>
+            <li>Interactive mind map preview for Markdown files</li>
+            <li>Three-view modes: Editor, Split, Preview</li>
+            <li>Theme-aware UI with automatic theme updates</li>
+            <li>Real-time updates</li>
+        </ul>
+    ]]></change-notes>
+
+    <!-- Require IntelliJ IDEA 2023.3 or later -->
+    <idea-version since-build="233" until-build="241.*"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.intellij.plugins.markdown</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileEditorProvider implementation="com.mohamedbamoh.markmap.editor.MarkmapPreviewProvider"/>
+        <!-- Use our composite editor provider -->
+        <fileEditorProvider implementation="com.mohamedbamoh.markmap.editor.MarkmapEditorProvider"/>
     </extensions>
 </idea-plugin>
