@@ -39,6 +39,7 @@ Note: There is no need to uninstall the default markdown plugin. The Markmap edi
 
 ### Example
 Create a markdown file with hierarchical content and watch it transform into an interactive mind map:
+![demo.gif](assets/demo.gif)
 ![light.png](assets/light.png)
 ![dark.png](assets/dark.png)
 ~~~markdown
@@ -116,4 +117,3 @@ The built plugin will be in build/distributions/.
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
-**Your plugin is ready for publication!** 🚀
