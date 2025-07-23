@@ -14,19 +14,27 @@ class MarkmapTemplateManager {
             val backgroundColor = UIUtil.getPanelBackground()
             val textColor = UIUtil.getLabelForeground()
 
-            val bgColorHex = String.format("#%02x%02x%02x",
-                backgroundColor.red, backgroundColor.green, backgroundColor.blue)
-            val textColorHex = String.format("#%02x%02x%02x",
-                textColor.red, textColor.green, textColor.blue)
+            val bgColorHex = String.format(
+                "#%02x%02x%02x",
+                backgroundColor.red, backgroundColor.green, backgroundColor.blue
+            )
+            val textColorHex = String.format(
+                "#%02x%02x%02x",
+                textColor.red, textColor.green, textColor.blue
+            )
 
             // Apply theme colors to body, container, and markmap text
             val processedTemplate = template
                 .replace("background: #ffffff;", "background: $bgColorHex;")
                 .replace("color: #000000;", "color: $textColorHex;")
-                .replace(".markmap-svg text {\n            fill: #000000 !important;\n        }",
-                    ".markmap-svg text { fill: $textColorHex !important; }")
-                .replace(".markmap-svg .markmap-foreign {\n            color: #000000 !important;\n        }",
-                    ".markmap-svg .markmap-foreign { color: $textColorHex !important; }")
+                .replace(
+                    ".markmap-svg text {\n            fill: #000000 !important;\n        }",
+                    ".markmap-svg text { fill: $textColorHex !important; }"
+                )
+                .replace(
+                    ".markmap-svg .markmap-foreign {\n            color: #000000 !important;\n        }",
+                    ".markmap-svg .markmap-foreign { color: $textColorHex !important; }"
+                )
 
             processedTemplate
 
@@ -38,10 +46,14 @@ class MarkmapTemplateManager {
     private fun createFallbackHtml(error: String): String {
         val backgroundColor = UIUtil.getPanelBackground()
         val textColor = UIUtil.getLabelForeground()
-        val bgColorHex = String.format("#%02x%02x%02x",
-            backgroundColor.red, backgroundColor.green, backgroundColor.blue)
-        val textColorHex = String.format("#%02x%02x%02x",
-            textColor.red, textColor.green, textColor.blue)
+        val bgColorHex = String.format(
+            "#%02x%02x%02x",
+            backgroundColor.red, backgroundColor.green, backgroundColor.blue
+        )
+        val textColorHex = String.format(
+            "#%02x%02x%02x",
+            textColor.red, textColor.green, textColor.blue
+        )
 
         return """
             <!DOCTYPE html>

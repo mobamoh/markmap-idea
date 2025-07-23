@@ -1,64 +1,76 @@
+fun properties(key: String) = providers.gradleProperty(key)
+
 plugins {
     id("java")
-    id("org.jetbrains.intellij") version "1.17.1"
-    id("org.jetbrains.kotlin.jvm") version "1.8.22" // Changed to 1.8.22 to match IDE requirement
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.intellijPlatform)
 }
 
-group = "com.mohamedbamoh"
-version = "1.0.0"
+group = properties("pluginGroup").get()
+version = properties("pluginVersion").get()
 
 repositories {
     mavenCentral()
-}
-
-// Configure Gradle IntelliJ Plugin
-intellij {
-    version.set("2023.3") // Hardcoded version instead of using properties
-    type.set("IC")        // Hardcoded type
-    plugins.set(listOf("org.intellij.plugins.markdown"))
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    intellijPlatform {
+        create(properties("platformType"), properties("platformVersion"))
+        bundledPlugins(properties("platformBundledPlugins").map { it.split(',') })
+        pluginVerifier()
+        zipSigner()
+        instrumentationTools()
+    }
 }
 
-tasks {
-    processResources {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        // Include all files from resources folder, not just markmap/**
-        from("src/main/resources") {
-            include("**/*")
+intellijPlatform {
+    buildSearchableOptions = false
+
+    pluginConfiguration {
+        version = properties("pluginVersion")
+
+        ideaVersion {
+            sinceBuild = properties("pluginSinceBuild")
+            untilBuild = properties("pluginUntilBuild")
         }
     }
 
-    buildSearchableOptions {
-        enabled = false
+    signing {
+        certificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
+        privateKey = providers.environmentVariable("PRIVATE_KEY")
+        password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
     }
 
-    patchPluginXml {
-        sinceBuild.set("233")
-        untilBuild.set("241.*")
+    publishing {
+        token = providers.environmentVariable("PUBLISH_TOKEN")
+        channels = properties("pluginVersion").map { listOf(it.substringAfter('-', "").substringBefore('.').ifEmpty { "default" }) }
+    }
+
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
+}
+
+tasks {
+    wrapper {
+        gradleVersion = libs.versions.gradle.get()
     }
 
     compileKotlin {
         kotlinOptions {
             jvmTarget = "17"
-            apiVersion = "1.8"    // Changed to 1.8
-            languageVersion = "1.8" // Changed to 1.8
         }
     }
 
     compileTestKotlin {
         kotlinOptions {
             jvmTarget = "17"
-            apiVersion = "1.8"    // Changed to 1.8
-            languageVersion = "1.8" // Changed to 1.8
         }
-    }
-
-    compileJava {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
     }
 }
 

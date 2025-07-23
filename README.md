@@ -103,26 +103,11 @@ If you encounter issues with the mind map not displaying:
 - Ensure you're using the "Markmap" tab, not just the default markdown editor
 - Check that your markdown follows proper heading hierarchy
 
-## Contributing
-We welcome contributions! Please feel free to submit issues and pull requests.
-### Development Setup
-1. Clone the repository
-2. Open in IntelliJ IDEA
-3. Run: ./gradlew runIde
-
 ### Building
 ```shell
 ./gradlew buildPlugin
 ```
 The built plugin will be in build/distributions/.
-## Changelog
-### 1.0.0
-- Initial release
-- Real-time markdown to mind map conversion
-- Theme integration (dark/light mode support)
-- Multiple view modes (editor, preview, split)
-- Interactive navigation (pan, zoom)
-- Coexistence with default markdown editor
 
 ## Credits
 - Gerald and the markmap team for creating the amazing markmap library

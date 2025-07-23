@@ -1,4 +1,3 @@
-
 package com.mohamedbamoh.markmap.editor
 
 import com.intellij.icons.AllIcons
@@ -43,7 +42,7 @@ class MarkmapCompositeEditor(
     }
 
     /**
-     * Sync text editor changes with preview component - NO DEBOUNCING
+     * Sync text editor changes with preview component
      */
     private fun setupContentSync() {
         ApplicationManager.getApplication().invokeLater({
@@ -69,7 +68,8 @@ class MarkmapCompositeEditor(
     private fun createToolbar(): JComponent {
         val actionGroup = DefaultActionGroup()
 
-        actionGroup.add(object : ToggleAction("Show Editor Only", "Show editor only", AllIcons.General.LayoutEditorOnly), DumbAware {
+        actionGroup.add(object :
+            ToggleAction("Show Editor Only", "Show editor only", AllIcons.General.LayoutEditorOnly), DumbAware {
             override fun isSelected(e: AnActionEvent): Boolean = currentMode == ViewMode.EDITOR_ONLY
             override fun setSelected(e: AnActionEvent, state: Boolean) {
                 if (state) {
@@ -79,7 +79,9 @@ class MarkmapCompositeEditor(
             }
         })
 
-        actionGroup.add(object : ToggleAction("Show Editor and Preview", "Show editor and preview", AllIcons.General.LayoutEditorPreview), DumbAware {
+        actionGroup.add(object :
+            ToggleAction("Show Editor and Preview", "Show editor and preview", AllIcons.General.LayoutEditorPreview),
+            DumbAware {
             override fun isSelected(e: AnActionEvent): Boolean = currentMode == ViewMode.SPLIT
             override fun setSelected(e: AnActionEvent, state: Boolean) {
                 if (state) {
@@ -89,7 +91,8 @@ class MarkmapCompositeEditor(
             }
         })
 
-        actionGroup.add(object : ToggleAction("Show Preview Only", "Show preview only", AllIcons.General.LayoutPreviewOnly), DumbAware {
+        actionGroup.add(object :
+            ToggleAction("Show Preview Only", "Show preview only", AllIcons.General.LayoutPreviewOnly), DumbAware {
             override fun isSelected(e: AnActionEvent): Boolean = currentMode == ViewMode.PREVIEW_ONLY
             override fun setSelected(e: AnActionEvent, state: Boolean) {
                 if (state) {
@@ -120,6 +123,7 @@ class MarkmapCompositeEditor(
                 mainPanel.add(topPanel, BorderLayout.NORTH)
                 mainPanel.add(editorPanel, BorderLayout.CENTER)
             }
+
             ViewMode.PREVIEW_ONLY -> {
                 val previewPanel = JPanel(BorderLayout())
                 previewPanel.add(previewComponent.getComponent(), BorderLayout.CENTER)
@@ -131,6 +135,7 @@ class MarkmapCompositeEditor(
                 mainPanel.add(topPanel, BorderLayout.NORTH)
                 mainPanel.add(previewPanel, BorderLayout.CENTER)
             }
+
             ViewMode.SPLIT -> {
                 splitter = JBSplitter(false, 0.5f).apply {
                     firstComponent = textEditor.component

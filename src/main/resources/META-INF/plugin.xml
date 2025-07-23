@@ -34,13 +34,12 @@
     ]]></change-notes>
 
     <!-- Require IntelliJ IDEA 2023.3 or later -->
-    <idea-version since-build="233" until-build="241.*"/>
+    <idea-version since-build="233" />
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.intellij.plugins.markdown</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Use our composite editor provider -->
         <fileEditorProvider implementation="com.mohamedbamoh.markmap.editor.MarkmapEditorProvider"/>
     </extensions>
 </idea-plugin>

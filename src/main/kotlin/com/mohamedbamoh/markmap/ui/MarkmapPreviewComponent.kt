@@ -9,8 +9,8 @@ import com.mohamedbamoh.markmap.utils.MarkmapTemplateManager
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.handler.CefLoadHandlerAdapter
+import java.util.*
 import javax.swing.JComponent
-import java.util.Base64
 
 class MarkmapPreviewComponent {
     private val browser: JBCefBrowser = JBCefBrowser()
