@@ -209,6 +209,32 @@
         }
     };
 
+    // ========== WORKING CONTROL FUNCTIONS ==========
+
+    // Center/Fit the mind map
+    window.centerMap = function () {
+        if (!markmapInstance) return;
+        markmapInstance.fit();
+    };
+
+    // Zoom in - use the markmap instance's zoom
+    window.zoomIn = function () {
+        if (!markmapInstance) return;
+        const svg = markmapInstance.svg;
+        const currentTransform = d3.zoomTransform(svg.node());
+        const newTransform = currentTransform.scale(1.2);
+        svg.transition().duration(300).call(markmapInstance.zoom.transform, newTransform);
+    };
+
+    // Zoom out - use the markmap instance's zoom
+    window.zoomOut = function () {
+        if (!markmapInstance) return;
+        const svg = markmapInstance.svg;
+        const currentTransform = d3.zoomTransform(svg.node());
+        const newTransform = currentTransform.scale(0.8);
+        svg.transition().duration(300).call(markmapInstance.zoom.transform, newTransform);
+    };
+
     // Start initialization immediately
     checkAndInit();
 </script>

@@ -18,7 +18,7 @@ class MarkmapPreviewComponent {
     private var isLoaded = false
     private var pendingContent: String? = null
     private var messageBusConnection: MessageBusConnection? = null
-    private var lastContent: String = "" // Store the last content
+    private var lastContent: String = ""
 
     init {
         setupBrowser()
@@ -32,11 +32,9 @@ class MarkmapPreviewComponent {
             override fun onLoadEnd(browser: CefBrowser, frame: CefFrame, httpStatusCode: Int) {
                 isLoaded = true
 
-                // Minimal wait time for libraries
                 ApplicationManager.getApplication().invokeLater({
-                    Thread.sleep(800) // Reduced to minimal time
+                    Thread.sleep(800)
 
-                    // Process pending content or use last content for theme reload
                     val contentToProcess = pendingContent ?: lastContent
                     if (contentToProcess.isNotEmpty()) {
                         updateContentInternal(contentToProcess)
@@ -68,11 +66,10 @@ class MarkmapPreviewComponent {
         isLoaded = false
         val html = templateManager.createMarkmapHtml()
         browser.loadHTML(html)
-        // Note: lastContent will be restored after reload in setupBrowser()
     }
 
     fun updateContent(content: String) {
-        lastContent = content // Store for theme reloads
+        lastContent = content
 
         if (!isLoaded) {
             pendingContent = content
@@ -83,14 +80,12 @@ class MarkmapPreviewComponent {
     }
 
     private fun updateContentInternal(content: String) {
-        // Use Base64 encoding to avoid all escaping issues with math formulas
         val contentBytes = content.toByteArray(Charsets.UTF_8)
         val base64Content = Base64.getEncoder().encodeToString(contentBytes)
 
         val script = """
             try {
                 if (typeof updateMarkmap === 'function') {
-                    // Decode Base64 back to original content
                     const decodedContent = atob('$base64Content');
                     updateMarkmap(decodedContent);
                 }
@@ -108,7 +103,20 @@ class MarkmapPreviewComponent {
         }, ModalityState.nonModal())
     }
 
+    fun executeJavaScript(script: String) {
+        if (!isLoaded) return
+
+        ApplicationManager.getApplication().invokeLater({
+            try {
+                browser.cefBrowser.executeJavaScript(script, browser.cefBrowser.url, 0)
+            } catch (e: Exception) {
+                // Silent fail
+            }
+        }, ModalityState.nonModal())
+    }
+
     fun getComponent(): JComponent = browser.component
+    fun getBrowserComponent(): JComponent = browser.component
 
     fun dispose() {
         messageBusConnection?.disconnect()

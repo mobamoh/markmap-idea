@@ -16,7 +16,8 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 import java.awt.BorderLayout
 import java.beans.PropertyChangeListener
-import javax.swing.*
+import javax.swing.JComponent
+import javax.swing.JPanel
 
 /**
  * Composite editor that combines text editor with markmap preview
@@ -65,9 +66,10 @@ class MarkmapCompositeEditor(
         }, ModalityState.nonModal())
     }
 
-    private fun createToolbar(): JComponent {
+    private fun createCombinedToolbar(): JComponent {
         val actionGroup = DefaultActionGroup()
 
+        // View mode controls
         actionGroup.add(object :
             ToggleAction("Show Editor Only", "Show editor only", AllIcons.General.LayoutEditorOnly), DumbAware {
             override fun isSelected(e: AnActionEvent): Boolean = currentMode == ViewMode.EDITOR_ONLY
@@ -102,10 +104,42 @@ class MarkmapCompositeEditor(
             }
         })
 
+        // Add separator between view controls and map controls
+        actionGroup.addSeparator()
+
+        // Mind map controls - only show when preview is visible (simplified to working controls only)
+        if (currentMode == ViewMode.SPLIT || currentMode == ViewMode.PREVIEW_ONLY) {
+            // Center/Fit action
+            actionGroup.add(object : AnAction("Center View", "Center and fit the mind map", AllIcons.Graph.ActualZoom),
+                DumbAware {
+                override fun actionPerformed(e: AnActionEvent) {
+                    executeJavaScript("if (typeof centerMap === 'function') centerMap();")
+                }
+            })
+
+            // Zoom In
+            actionGroup.add(object : AnAction("Zoom In", "Zoom in", AllIcons.Graph.ZoomIn), DumbAware {
+                override fun actionPerformed(e: AnActionEvent) {
+                    executeJavaScript("if (typeof zoomIn === 'function') zoomIn();")
+                }
+            })
+
+            // Zoom Out
+            actionGroup.add(object : AnAction("Zoom Out", "Zoom out", AllIcons.Graph.ZoomOut), DumbAware {
+                override fun actionPerformed(e: AnActionEvent) {
+                    executeJavaScript("if (typeof zoomOut === 'function') zoomOut();")
+                }
+            })
+        }
+
         val toolbar = ActionManager.getInstance().createActionToolbar("MarkmapEditor", actionGroup, true)
         toolbar.targetComponent = mainPanel
         toolbar.component.isOpaque = false
         return toolbar.component
+    }
+
+    private fun executeJavaScript(script: String) {
+        previewComponent.executeJavaScript(script)
     }
 
     private fun updateLayout() {
@@ -117,7 +151,7 @@ class MarkmapCompositeEditor(
                 editorPanel.add(textEditor.component, BorderLayout.CENTER)
 
                 val topPanel = JPanel(BorderLayout())
-                topPanel.add(createToolbar(), BorderLayout.EAST)
+                topPanel.add(createCombinedToolbar(), BorderLayout.EAST)
                 topPanel.isOpaque = false
 
                 mainPanel.add(topPanel, BorderLayout.NORTH)
@@ -125,11 +159,12 @@ class MarkmapCompositeEditor(
             }
 
             ViewMode.PREVIEW_ONLY -> {
+                // For preview only, get the raw browser component without additional toolbar
                 val previewPanel = JPanel(BorderLayout())
-                previewPanel.add(previewComponent.getComponent(), BorderLayout.CENTER)
+                previewPanel.add(previewComponent.getBrowserComponent(), BorderLayout.CENTER)
 
                 val topPanel = JPanel(BorderLayout())
-                topPanel.add(createToolbar(), BorderLayout.EAST)
+                topPanel.add(createCombinedToolbar(), BorderLayout.EAST)
                 topPanel.isOpaque = false
 
                 mainPanel.add(topPanel, BorderLayout.NORTH)
@@ -139,12 +174,13 @@ class MarkmapCompositeEditor(
             ViewMode.SPLIT -> {
                 splitter = JBSplitter(false, 0.5f).apply {
                     firstComponent = textEditor.component
-                    secondComponent = previewComponent.getComponent()
+                    // For split mode, get the raw browser component without additional toolbar
+                    secondComponent = previewComponent.getBrowserComponent()
                     setDividerWidth(1)
                 }
 
                 val topPanel = JPanel(BorderLayout())
-                topPanel.add(createToolbar(), BorderLayout.EAST)
+                topPanel.add(createCombinedToolbar(), BorderLayout.EAST)
                 topPanel.isOpaque = false
 
                 mainPanel.add(topPanel, BorderLayout.NORTH)
