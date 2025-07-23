@@ -6,35 +6,55 @@
     <vendor email="mobamoh.it@gmail.com" url="https://github.com/mobamoh/markmap-jetbrains">Mohamed Bamoh</vendor>
 
     <description><![CDATA[
-        <p>Adds interactive mind map preview for Markdown files using Markmap.</p>
+        <p><strong>Transform your Markdown documents into interactive mind maps!</strong></p>
 
-        <h3>Features:</h3>
+        <p>Markmap Preview brings the power of visual thinking to your Markdown workflow. See your document structure as a beautiful, interactive mind map that updates in real-time as you type.</p>
+
+        <h3>✨ Key Features</h3>
         <ul>
-            <li>🧠 Interactive mind map visualization of Markdown documents</li>
-            <li>🎨 Follows your IDE's theme (light/dark mode) with automatic updates</li>
-            <li>⚡ Real-time preview updates as you type</li>
-            <li>🔍 Zoom and pan support</li>
-            <li>📱 Three-view modes: Editor, Split, Preview with toolbar buttons</li>
+            <li>🧠 <strong>Interactive Mind Map Visualization</strong> - Transform Markdown structure into beautiful mind maps</li>
+            <li>🎨 <strong>Theme Integration</strong> - Automatically follows your IDE's light/dark theme</li>
+            <li>⚡ <strong>Real-time Updates</strong> - See changes instantly as you type</li>
+            <li>🔍 <strong>Zoom & Pan Controls</strong> - Navigate large mind maps with ease</li>
+            <li>📱 <strong>Flexible View Modes</strong> - Editor only, Split view, or Preview only</li>
+            <li>🎯 <strong>Center & Fit</strong> - Quickly navigate and focus your mind map</li>
+            <li>🖱️ <strong>Interactive Nodes</strong> - Click to expand/collapse branches</li>
         </ul>
 
-        <h3>Usage:</h3>
-        <p>Open any Markdown file and use the toolbar buttons to switch between Editor, Split, and Preview modes.
-        Your markdown structure will be rendered as an interactive mind map!</p>
+        <h3>🚀 How to Use</h3>
+        <ol>
+            <li>Open any Markdown (.md) file</li>
+            <li>Use the toolbar buttons to switch between view modes</li>
+            <li>Your Markdown headings become mind map nodes automatically</li>
+            <li>Use zoom controls for better navigation</li>
+            <li>Click nodes to expand/collapse sections</li>
+        </ol>
+
+        <h3>💡 Perfect For</h3>
+        <ul>
+            <li>Documentation writers and technical authors</li>
+            <li>Students organizing study notes</li>
+            <li>Project managers planning and structuring content</li>
+            <li>Anyone who thinks visually!</li>
+        </ul>
+
+        <br/>
+        <p><em>Powered by the excellent Markmap library for beautiful, interactive mind maps.</em></p>
     ]]></description>
 
     <change-notes><![CDATA[
-        <h3>Version 1.0.0</h3>
+        <h3>🎉 Version 1.0.0 - Initial Release</h3>
         <ul>
-            <li>Initial release</li>
-            <li>Interactive mind map preview for Markdown files</li>
-            <li>Three-view modes: Editor, Split, Preview</li>
-            <li>Theme-aware UI with automatic theme updates</li>
-            <li>Real-time updates</li>
+            <li>✨ Interactive mind map preview for Markdown files</li>
+            <li>🎨 Theme-aware UI with automatic light/dark mode switching</li>
+            <li>📱 Three flexible view modes: Editor, Split, Preview</li>
+            <li>🔍 Zoom in/out and center controls for easy navigation</li>
+            <li>⚡ Real-time preview updates as you type</li>
+            <li>🖱️ Click-to-expand/collapse node functionality</li>
+            <li>🎯 Smooth animations and transitions</li>
         </ul>
     ]]></change-notes>
 
-    <!-- Require IntelliJ IDEA 2023.3 or later -->
-    <idea-version since-build="233" />
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.intellij.plugins.markdown</depends>
